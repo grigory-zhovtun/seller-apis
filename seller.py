@@ -131,7 +131,22 @@ def create_prices(watch_remnants, offer_ids):
 
 
 def price_conversion(price: str) -> str:
-    """Преобразовать цену. Пример: 5'990.00 руб. -> 5990"""
+    """Converts the given price string to a digits-only string.
+
+    Example (correct usage):
+        >>> price_conversion("5'990.00 руб.")
+        '5990'
+
+    Example (incorrect usage):
+        >>> price_conversion("invalid string")
+        ''  # returns an empty string if no digits are found
+
+    Args:
+        price (str): The original price string.
+
+    Returns:
+        str: The price string containing only digits.
+    """
     return re.sub("[^0-9]", "", price.split(".")[0])
 
 
