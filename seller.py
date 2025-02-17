@@ -109,7 +109,6 @@ def update_stocks(stocks: list, client_id, seller_token):
 
     Returns:
         json: response from Ozon API
-
     """
     url = "https://api-seller.ozon.ru/v1/product/import/stocks"
     headers = {

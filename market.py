@@ -11,6 +11,18 @@ logger = logging.getLogger(__file__)
 
 
 def get_product_list(page, campaign_id, access_token):
+    """Get list of products from Yandex market.
+
+    This function uses the Yandex market API to fetch the complete list of products available in the store.
+
+    Args:
+        page (int): Page number
+        campaign_id (int): Campaign ID
+        access_token (str): Access token
+
+    Returns:
+        list: List of products
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -30,6 +42,19 @@ def get_product_list(page, campaign_id, access_token):
 
 
 def update_stocks(stocks, campaign_id, access_token):
+    """Update stocks of products in Yandex market.
+
+        This function uses the list of products from Yandex market and updates the
+        stock of each product in the list.
+
+        Args:
+            stocks (list): list of stocks of products
+            campaign_id (int): Campaign ID
+            access_token (str): Access token
+
+        Returns:
+            json: response from Yandex API
+        """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -46,6 +71,20 @@ def update_stocks(stocks, campaign_id, access_token):
 
 
 def update_price(prices, campaign_id, access_token):
+    """Update price of products in Yandex market.
+
+    This function uses the list of products from Yandex market and updates the
+    price of each product in the list.
+
+    Args:
+        prices (list): list of prices of products
+        campaign_id (int): Campaign ID
+        access_token (str): Access token
+
+    Returns:
+        json: response from Yandex API
+
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -62,7 +101,18 @@ def update_price(prices, campaign_id, access_token):
 
 
 def get_offer_ids(campaign_id, market_token):
-    """Получить артикулы товаров Яндекс маркета"""
+    """Get articles of products from Yandex market.
+
+    This function uses the list of products from Yandex market and
+    then extracts and returns the `offer_id` from each product.
+
+    Args:
+        campaign_id (int): Campaign ID
+        market_token (str): Access token
+
+    Returns:
+        list of str: A list containing the offer IDs for all products.
+    """
     page = ""
     product_list = []
     while True:
@@ -78,6 +128,29 @@ def get_offer_ids(campaign_id, market_token):
 
 
 def create_stocks(watch_remnants, offer_ids, warehouse_id):
+    """Generate actual stock levels from watch remnants.
+
+    This function processes stock data from the Timeworld website and updates stock levels
+    based on predefined rules:
+
+    - If the stock is ">10", it is set to 100.
+    - If the stock is "1", it is set to 0.
+    - Otherwise, the stock remains unchanged.
+
+    Additionally, if a watch's ID is not present in `offer_ids` (IDs from the Yandex Market),
+    its stock is set to 0.
+
+    The function returns a list of dictionaries formatted for inventory updates, including
+    stock count, warehouse ID, and timestamp.
+
+    Args:
+        watch_remnants (list[dict]): A list of dictionaries containing watch stock data.
+        offer_ids (set[str]): A set of offer IDs from the Yandex Market.
+        warehouse_id (str): The warehouse ID where stocks are updated.
+
+    Returns:
+        list[dict]: A list of dictionaries containing updated stock levels.
+    """
     # Уберем то, что не загружено в market
     stocks = list()
     date = str(datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z")
@@ -123,6 +196,19 @@ def create_stocks(watch_remnants, offer_ids, warehouse_id):
 
 
 def create_prices(watch_remnants, offer_ids):
+    """Generate new prices for available stock.
+
+    This function calculates new prices for available products based on stock data from
+    the Timeworld website. It processes watch remnants and extracts price values for
+    products present in `offer_ids`.
+
+    Args:
+        watch_remnants (list[dict]): A list of dictionaries containing watch stock data.
+        offer_ids (set[str]): A set of offer IDs from the Yandex Market.
+
+    Returns:
+        list[dict]: A list of dictionaries containing updated price information.
+    """
     prices = []
     for watch in watch_remnants:
         if str(watch.get("Код")) in offer_ids:
@@ -143,6 +229,19 @@ def create_prices(watch_remnants, offer_ids):
 
 
 async def upload_prices(watch_remnants, campaign_id, market_token):
+    """Send updated prices to the Yandex Market API.
+
+    This function processes new prices and sends them to the Yandex Market API
+    in batches of 500 prices per request.
+
+    Args:
+        watch_remnants (list[dict]): A list of dictionaries containing watch stock data.
+        campaign_id (str): The campaign ID associated with the Yandex Market store.
+        market_token (str): The API token for authentication with Yandex Market.
+
+    Returns:
+        list[dict]: A list of dictionaries containing the updated price information.
+    """
     offer_ids = get_offer_ids(campaign_id, market_token)
     prices = create_prices(watch_remnants, offer_ids)
     for some_prices in list(divide(prices, 500)):
@@ -151,6 +250,23 @@ async def upload_prices(watch_remnants, campaign_id, market_token):
 
 
 async def upload_stocks(watch_remnants, campaign_id, market_token, warehouse_id):
+    """Send updated stock levels to the Yandex Market API.
+
+    This asynchronous function processes stock updates and sends them to the Yandex Market API
+    in batches of 2000 items per request. It returns a tuple containing both the complete list
+    of stock updates and a filtered list that includes only items with a stock count greater than zero.
+
+    Args:
+        watch_remnants (list[dict]): A list of dictionaries containing watch stock data.
+        campaign_id (str): The campaign ID.
+        market_token (str): The Yandex Market API token.
+        warehouse_id (str): The warehouse ID where the stocks are managed.
+
+    Returns:
+        tuple:
+            list[dict]: A list of dictionaries containing updated stock levels, excluding items with zero stock.
+            list[dict]: A list of dictionaries containing all updated stock levels.
+    """
     offer_ids = get_offer_ids(campaign_id, market_token)
     stocks = create_stocks(watch_remnants, offer_ids, warehouse_id)
     for some_stock in list(divide(stocks, 2000)):
