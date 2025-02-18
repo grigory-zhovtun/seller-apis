@@ -1,8 +1,5 @@
 # Market Updater
 
-Приложение для обновление остатков и цен на 
-маркетплейсах Озон и Яндекс.Маркет.
+Application for updating stock and prices on the Ozon and Yandex.Market marketplaces.
 <hr/>
-Данное приложение использует актуальные остатки и цены на 
-товары онлайн магазина часов Timeworld, для автоматического 
-обновления на маркетплейсах Озон и Яндекс.Маркет.
+This application uses the latest stock levels and prices from the Timeworld online watch store to automatically update information on the Ozon and Yandex.Market marketplaces.
