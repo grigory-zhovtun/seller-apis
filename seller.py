@@ -1,3 +1,8 @@
+"""Module for interfacing with the Ozon seller API and managing product data.
+
+This module provides functions to download, update, and process stock and price
+data for products from Ozon and Timeworld.
+"""
 import io
 import logging.config
 import os
@@ -12,9 +17,10 @@ logger = logging.getLogger(__file__)
 
 
 def get_product_list(last_id, client_id, seller_token):
-    """Get list of products from Ozon store
+    """Get list of products from Ozon store.
 
-    This function uses the Ozon API to fetch the complete list of products available in the store.
+    This function uses the Ozon API to fetch the complete list of products
+    available in the store.
 
     Args:
         last_id (int): last id of goods
@@ -43,7 +49,7 @@ def get_product_list(last_id, client_id, seller_token):
 
 
 def get_offer_ids(client_id, seller_token):
-    """Get articles of products from Ozon
+    """Get articles of products from Ozon.
 
     This function uses the list of products from Ozon store and
     then extracts and returns the `offer_id` from each product.
@@ -71,7 +77,7 @@ def get_offer_ids(client_id, seller_token):
 
 
 def update_price(prices: list, client_id, seller_token):
-    """Update price of products in Ozon store
+    """Update price of products in Ozon store.
 
     This function uses the list of products from Ozon store and updates the
     price of each product in the list.
@@ -97,7 +103,7 @@ def update_price(prices: list, client_id, seller_token):
 
 
 def update_stocks(stocks: list, client_id, seller_token):
-    """Update stocks of products in Ozon store
+    """Update stocks of products in Ozon store.
 
     This function uses the list of products from Ozon store and updates the
     stock of each product in the list.
@@ -124,9 +130,10 @@ def update_stocks(stocks: list, client_id, seller_token):
 def download_stock():
     """Download and process stock data from Timeworld.
 
-    This function downloads a ZIP archive containing an Excel file with stock data
-    from the Timeworld website. It extracts the archive, reads the data into a Pandas
-    DataFrame, converts it to a list of dictionaries, and returns the result.
+    This function downloads a ZIP archive containing an Excel file with
+    stock data from the Timeworld website. It extracts the archive,
+    reads the data into a Pandas DataFrame, converts it to
+    a list of dictionaries, and returns the result.
 
     Returns:
         list[dict]: A list of dictionaries containing stock information.
@@ -153,17 +160,17 @@ def download_stock():
 def create_stocks(watch_remnants, offer_ids):
     """Generate actual stock levels from watch remnants.
 
-    This function processes stock data from the Timeworld website and updates stock levels
-    based on predefined rules:
+    This function processes stock data from the Timeworld
+    website and updates stock levels based on predefined rules:
     - If the stock is ">10", it is set to 100.
     - If the stock is "1", it is set to 0.
     - Otherwise, the stock remains unchanged.
 
-    Additionally, if a watch's ID is not present in `offer_ids` (IDs from the Ozon store),
-    its stock is set to 0.
+    Additionally, if a watch's ID is not present in `offer_ids`
+    (IDs from the Ozon store), its stock is set to 0.
 
     Args:
-        watch_remnants (list[dict]): A list of dictionaries containing watch stock data.
+        watch_remnants (list[dict]): A list of dict with watch stock data.
         offer_ids (set[str]): A set of offer IDs from the Ozon store.
 
     Returns:
@@ -191,11 +198,11 @@ def create_stocks(watch_remnants, offer_ids):
 def create_prices(watch_remnants, offer_ids):
     """Create new prices for actual stock levels.
 
-    This function create new prices for actual products. New prices get from the
-    Timeworld website for actual watch remnants.
+    This function create new prices for actual products.
+    New prices get from the Timeworld website for actual watch remnants.
 
     Args:
-        watch_remnants (list[dict]): A list of dictionaries containing watch stock data.
+        watch_remnants (list[dict]): A list of dict with watch stock data.
         offer_ids (set[str]): A set of offer IDs from the Ozon store.
 
     Returns:
@@ -236,18 +243,27 @@ def price_conversion(price: str) -> str:
 
 
 def divide(lst: list, n: int):
-    """Разделить список lst на части по n элементов"""
+    """Divide the given list into n parts.
+
+    Args:
+        lst (list): The list to be divided.
+        n (int): The number of parts.
+
+    Returns:
+        list[list]: A list of lists where each list has n parts.
+    """
     for i in range(0, len(lst), n):
-        yield lst[i : i + n]
+        yield lst[i:i + n]
 
 
 async def upload_prices(watch_remnants, client_id, seller_token):
     """Send updated prices to the Ozon API.
 
-    This function processes new prices and sends them to the Ozon API in batches of 1000 prices per request.
+    This function processes new prices and sends them to the Ozon API
+    in batches of 1000 prices per request.
 
     Args:
-        watch_remnants (list[dict]): A list of dictionaries containing watch stock data.
+        watch_remnants (list[dict]): A list of dict with watch stock data.
         client_id (str): The Ozon Client ID used for authentication.
         seller_token (str): The Ozon seller token used for API access.
 
@@ -264,18 +280,21 @@ async def upload_prices(watch_remnants, client_id, seller_token):
 async def upload_stocks(watch_remnants, client_id, seller_token):
     """Send updated stock levels to the Ozon API.
 
-    This function processes stock updates and sends them to the Ozon API in batches of 100 items per request.
-    It returns both the complete list of stock updates and a filtered list containing only items with stock greater than zero.
+    This function processes stock updates and sends them to the Ozon API
+    in batches of 100 items per request. It returns both the complete
+    list of stock updates and a filtered list containing only items
+    with stock greater than zero.
 
     Args:
-        watch_remnants (list[dict]): A list of dictionaries containing watch stock data.
+        watch_remnants (list[dict]): A list of dict with watch stock data.
         client_id (str): The Ozon Client ID used for authentication.
         seller_token (str): The Ozon seller token used for API access.
 
     Returns:
         tuple:
-            list[dict]: A list of dictionaries containing updated stock levels, excluding items with zero stock.
-            list[dict]: A list of dictionaries containing all updated stock levels.
+            list[dict]: A list of dict with updated stock levels,
+            excluding items with zero stock.
+            list[dict]: A list of dict with all updated stock levels.
     """
     offer_ids = get_offer_ids(client_id, seller_token)
     stocks = create_stocks(watch_remnants, offer_ids)
@@ -286,6 +305,12 @@ async def upload_stocks(watch_remnants, client_id, seller_token):
 
 
 def main():
+    """Main function.
+
+    his function includes the process of downloading the latest inventory
+    and product prices from the Timeworld website and uploading them to Ozon.
+
+    """
     env = Env()
     seller_token = env.str("SELLER_TOKEN")
     client_id = env.str("CLIENT_ID")
