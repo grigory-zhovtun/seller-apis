@@ -307,7 +307,7 @@ async def upload_stocks(watch_remnants, client_id, seller_token):
 def main():
     """Main function.
 
-    his function includes the process of downloading the latest inventory
+    This function includes the process of downloading the latest inventory
     and product prices from the Timeworld website and uploading them to Ozon.
 
     """
