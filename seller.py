@@ -23,8 +23,8 @@ def get_product_list(last_id, client_id, seller_token):
     available in the store.
 
     Args:
-        last_id (int): last id of goods
-        client_id (int): client id of goods
+        last_id (str): last id of goods
+        client_id (str): client id of goods
         seller_token (str): seller token
 
     Returns:
