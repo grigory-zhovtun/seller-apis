@@ -22,7 +22,7 @@ def get_product_list(page, campaign_id, access_token):
     list of products available in the store.
 
     Args:
-        page (int): Page number
+        page (str): Page number
         campaign_id (str): Campaign ID
         access_token (str): Access token
 
