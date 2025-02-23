@@ -23,7 +23,7 @@ def get_product_list(page, campaign_id, access_token):
 
     Args:
         page (int): Page number
-        campaign_id (int): Campaign ID
+        campaign_id (str): Campaign ID
         access_token (str): Access token
 
     Returns:
@@ -55,7 +55,7 @@ def update_stocks(stocks, campaign_id, access_token):
 
     Args:
         stocks (list): list of stocks of products
-        campaign_id (int): Campaign ID
+        campaign_id (str): Campaign ID
         access_token (str): Access token
 
     Returns:
@@ -84,7 +84,7 @@ def update_price(prices, campaign_id, access_token):
 
     Args:
         prices (list): list of prices of products
-        campaign_id (int): Campaign ID
+        campaign_id (str): Campaign ID
         access_token (str): Access token
 
     Returns:
@@ -113,7 +113,7 @@ def get_offer_ids(campaign_id, market_token):
     then extracts and returns the `offer_id` from each product.
 
     Args:
-        campaign_id (int): Campaign ID
+        campaign_id (str): Campaign ID
         market_token (str): Access token
 
     Returns:
